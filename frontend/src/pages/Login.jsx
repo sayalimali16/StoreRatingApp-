@@ -48,7 +48,7 @@ const Login = () => {
           <div className="navbar-brand-icon" style={{ margin: '0 auto 1rem auto', width: 50, height: 50 }}>
             <Store size={28} color="white" />
           </div>
-          <h2>Welcome Back</h2>
+          <h2>Welcome</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: 4 }}>
             Single Login Portal for Admins, Users & Store Owners
           </p>
