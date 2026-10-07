@@ -71,7 +71,7 @@ const Register = () => {
         <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <h2>Create Normal User Account</h2>
           <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginTop: 4 }}>
-            Register to rate stores, submit reviews, and discover local businesses.
+            Register to submit reviews,rate stores, and discover local businesses.
           </p>
         </div>
 
