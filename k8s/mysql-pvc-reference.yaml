@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"PersistentVolumeClaim","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"database","app.kubernetes.io/name":"mysql-pvc","app.kubernetes.io/part-of":"store-rating-app"},"name":"mysql-pvc","namespace":"storerating"},"spec":{"accessModes":["ReadWriteOnce"],"resources":{"requests":{"storage":"1Gi"}}}}
+    pv.kubernetes.io/bind-completed: "yes"
+    pv.kubernetes.io/bound-by-controller: "yes"
+    volume.beta.kubernetes.io/storage-provisioner: rancher.io/local-path
+    volume.kubernetes.io/selected-node: storerating-cluster-control-plane
+    volume.kubernetes.io/storage-provisioner: rancher.io/local-path
+  creationTimestamp: "2026-10-12T18:56:10Z"
+  finalizers:
+  - kubernetes.io/pvc-protection
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/name: mysql-pvc
+    app.kubernetes.io/part-of: store-rating-app
+  name: mysql-pvc
+  namespace: storerating
+  resourceVersion: "837"
+  uid: b217709b-2f49-4494-b234-b4abda354d1a
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+  volumeMode: Filesystem
+  volumeName: pvc-b217709b-2f49-4494-b234-b4abda354d1a
+status:
+  accessModes:
+  - ReadWriteOnce
+  capacity:
+    storage: 1Gi
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-10-12T18:56:14Z"
+    message: A pod is currently referencing this PVC
+    reason: PodUsingPVC
+    status: "False"
+    type: Unused
+  phase: Bound

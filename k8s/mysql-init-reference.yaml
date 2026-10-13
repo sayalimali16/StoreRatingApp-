@@ -1,0 +1,79 @@
+apiVersion: v1
+data:
+  01-schema.sql: |
+    CREATE DATABASE IF NOT EXISTS `store_rating_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    USE `store_rating_db`;
+
+    DROP TABLE IF EXISTS `ratings`;
+    DROP TABLE IF EXISTS `stores`;
+    DROP TABLE IF EXISTS `users`;
+    DROP TABLE IF EXISTS `roles`;
+
+    CREATE TABLE `roles` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `name` VARCHAR(50) NOT NULL UNIQUE,
+        `description` VARCHAR(255) NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    CREATE TABLE `users` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `name` VARCHAR(60) NOT NULL,
+        `email` VARCHAR(255) NOT NULL UNIQUE,
+        `password` VARCHAR(255) NOT NULL,
+        `address` VARCHAR(400) NOT NULL,
+        `role_id` INT NOT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT `fk_users_roles` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+        CONSTRAINT `chk_user_name_len` CHECK (CHAR_LENGTH(`name`) >= 20 AND CHAR_LENGTH(`name`) <= 60),
+        CONSTRAINT `chk_user_address_len` CHECK (CHAR_LENGTH(`address`) <= 400)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    CREATE INDEX `idx_users_email` ON `users` (`email`);
+    CREATE INDEX `idx_users_role_id` ON `users` (`role_id`);
+
+    CREATE TABLE `stores` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `name` VARCHAR(200) NOT NULL,
+        `email` VARCHAR(255) NOT NULL,
+        `address` VARCHAR(400) NOT NULL,
+        `owner_id` INT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT `fk_stores_owner` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+        CONSTRAINT `chk_store_address_len` CHECK (CHAR_LENGTH(`address`) <= 400)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    CREATE INDEX `idx_stores_name` ON `stores` (`name`);
+    CREATE INDEX `idx_stores_owner_id` ON `stores` (`owner_id`);
+
+    CREATE TABLE `ratings` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `user_id` INT NOT NULL,
+        `store_id` INT NOT NULL,
+        `rating` TINYINT NOT NULL,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        CONSTRAINT `fk_ratings_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+        CONSTRAINT `fk_ratings_stores` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+        CONSTRAINT `chk_rating_value` CHECK (`rating` >= 1 AND `rating` <= 5),
+        CONSTRAINT `uq_user_store_rating` UNIQUE (`user_id`, `store_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+    CREATE INDEX `idx_ratings_user_id` ON `ratings` (`user_id`);
+    CREATE INDEX `idx_ratings_store_id` ON `ratings` (`store_id`);
+kind: ConfigMap
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","data":{"01-schema.sql":"CREATE DATABASE IF NOT EXISTS `store_rating_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\nUSE `store_rating_db`;\n\nDROP TABLE IF EXISTS `ratings`;\nDROP TABLE IF EXISTS `stores`;\nDROP TABLE IF EXISTS `users`;\nDROP TABLE IF EXISTS `roles`;\n\nCREATE TABLE `roles` (\n    `id` INT AUTO_INCREMENT PRIMARY KEY,\n    `name` VARCHAR(50) NOT NULL UNIQUE,\n    `description` VARCHAR(255) NULL,\n    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE TABLE `users` (\n    `id` INT AUTO_INCREMENT PRIMARY KEY,\n    `name` VARCHAR(60) NOT NULL,\n    `email` VARCHAR(255) NOT NULL UNIQUE,\n    `password` VARCHAR(255) NOT NULL,\n    `address` VARCHAR(400) NOT NULL,\n    `role_id` INT NOT NULL,\n    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n    CONSTRAINT `fk_users_roles` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,\n    CONSTRAINT `chk_user_name_len` CHECK (CHAR_LENGTH(`name`) \u003e= 20 AND CHAR_LENGTH(`name`) \u003c= 60),\n    CONSTRAINT `chk_user_address_len` CHECK (CHAR_LENGTH(`address`) \u003c= 400)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE INDEX `idx_users_email` ON `users` (`email`);\nCREATE INDEX `idx_users_role_id` ON `users` (`role_id`);\n\nCREATE TABLE `stores` (\n    `id` INT AUTO_INCREMENT PRIMARY KEY,\n    `name` VARCHAR(200) NOT NULL,\n    `email` VARCHAR(255) NOT NULL,\n    `address` VARCHAR(400) NOT NULL,\n    `owner_id` INT NULL,\n    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n    CONSTRAINT `fk_stores_owner` FOREIGN KEY (`owner_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,\n    CONSTRAINT `chk_store_address_len` CHECK (CHAR_LENGTH(`address`) \u003c= 400)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE INDEX `idx_stores_name` ON `stores` (`name`);\nCREATE INDEX `idx_stores_owner_id` ON `stores` (`owner_id`);\n\nCREATE TABLE `ratings` (\n    `id` INT AUTO_INCREMENT PRIMARY KEY,\n    `user_id` INT NOT NULL,\n    `store_id` INT NOT NULL,\n    `rating` TINYINT NOT NULL,\n    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,\n    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\n    CONSTRAINT `fk_ratings_users` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n    CONSTRAINT `fk_ratings_stores` FOREIGN KEY (`store_id`) REFERENCES `stores` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,\n    CONSTRAINT `chk_rating_value` CHECK (`rating` \u003e= 1 AND `rating` \u003c= 5),\n    CONSTRAINT `uq_user_store_rating` UNIQUE (`user_id`, `store_id`)\n) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;\n\nCREATE INDEX `idx_ratings_user_id` ON `ratings` (`user_id`);\nCREATE INDEX `idx_ratings_store_id` ON `ratings` (`store_id`);\n"},"kind":"ConfigMap","metadata":{"annotations":{},"labels":{"app.kubernetes.io/component":"database","app.kubernetes.io/name":"mysql-init-script","app.kubernetes.io/part-of":"store-rating-app"},"name":"mysql-init-script","namespace":"storerating"}}
+  creationTimestamp: "2026-10-12T18:56:09Z"
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/name: mysql-init-script
+    app.kubernetes.io/part-of: store-rating-app
+  name: mysql-init-script
+  namespace: storerating
+  resourceVersion: "717"
+  uid: 78518275-8da1-4968-b65d-16f3dc127f53
